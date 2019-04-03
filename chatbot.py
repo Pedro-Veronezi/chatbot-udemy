@@ -19,22 +19,23 @@ id2line = {}
 for line in lines:
     _line = line.split(' +++$+++ ')
     if len(_line) == 5:
-        id2line[_line[0]] = _line[4] 
+        id2line[_line[0]] = _line[4]
 
 conversations_ids = []
 
 for conversation in conversations[:-1]:
     _conversation = conversation.split(' +++$+++ ')[-1][1:-1].replace("'", "").replace(" ", "")
-    conversations_ids.append(_conversation.split(','))    
+    conversations_ids.append(_conversation.split(','))
 
 questions = []
 answers = []
 
 for ci in conversations_ids:
-    for i in range(len(ci)-1):
+    for i in range(len(ci) - 1):
         questions.append(id2line[ci[i]])
-        answers.append(id2line[ci[i+1]])
-        
+        answers.append(id2line[ci[i + 1]])
+
+
 def clean_text(text):
     text = text.lower()
     text = re.sub(r"i'm", "i am", text)
@@ -52,10 +53,56 @@ def clean_text(text):
     text = re.sub(r"[-()\"#/@<>;:{}+=~|.?,!]", "", text)
     return text
 
+
 clean_question = []
 clean_answers = []
 for q in questions:
     clean_question.append(clean_text(q))
 for a in answers:
-    clean_answers.append(clean_text(a))    
-    
+    clean_answers.append(clean_text(a))
+
+word2count = {}
+
+for q in clean_question:
+    for w in q.split():
+        if w not in word2count:
+            word2count[w] = 1
+        else:
+            word2count[w] += 1
+
+for a in clean_answers:
+    for w in a.split():
+        if w not in word2count:
+            word2count[w] = 1
+        else:
+            word2count[w] += 1
+
+
+threshold = 20
+qwords2int = {}
+word_number = 0
+
+for w, c in word2count.items():
+    if c >= threshold:
+        qwords2int[w] = word_number
+        word_number += 1
+
+awords2int = {}
+word_number = 0
+
+for w, c in word2count.items():
+    if c >= threshold:
+        awords2int[w] = word_number
+        word_number += 1
+
+tokens = ['<PAD>', '<EOS>', '<OUT>', '<SOS>']
+
+for t in tokens:
+    qwords2int[t] = len(qwords2int) + 1
+
+for t in tokens:
+    awords2int[t] = len(awords2int) + 1
+
+aint2word = {w_i: w for w, w_i in awords2int}
+
+# todo stopped on lesson 29

@@ -11,6 +11,7 @@ import tensorflow as tf
 import re
 import time
 
+# Corpus downloaded at: https://www.cs.cornell.edu/~cristian/Cornell_Movie-Dialogs_Corpus.html
 lines = open('movie_lines.txt', encoding='utf-8', errors='ignore').read().split('\n')
 conversations = open('movie_conversations.txt', encoding='utf-8', errors='ignore').read().split('\n')
 
@@ -103,6 +104,41 @@ for t in tokens:
 for t in tokens:
     awords2int[t] = len(awords2int) + 1
 
-aint2word = {w_i: w for w, w_i in awords2int}
+aint2word = {w_i: w for w, w_i in awords2int.items()}
 
-# todo stopped on lesson 29
+for i in range(len(clean_answers)):
+    clean_answers[i] += ' <EOS>'
+
+# for i in range(len(clean_question)):
+#    clean_question[i] += ' <EOS>'
+
+q2int = []
+for q in clean_question:
+    ints = []
+    for w in q.split():
+        if w not in qwords2int:
+            ints.append(qwords2int['<OUT>'])
+        else:
+            ints.append(qwords2int[w])
+    q2int.append(ints)
+
+a2int = []
+for a in clean_answers:
+    ints = []
+    for w in a.split():
+        if w not in awords2int:
+            ints.append(awords2int['<OUT>'])
+        else:
+            ints.append(awords2int[w])
+    a2int.append(ints)
+
+sort_clean_questions = []
+sort_clean_answers = []
+
+for l in range(1, 26):
+    for i in enumerate(q2int):
+        if len(i[1]) == l:
+            sort_clean_questions.append(q2int[i[0]])
+            sort_clean_answers.append(a2int[i[0]])
+
+

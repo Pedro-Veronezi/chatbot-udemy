@@ -78,7 +78,6 @@ for a in clean_answers:
         else:
             word2count[w] += 1
 
-
 threshold = 20
 qwords2int = {}
 word_number = 0
@@ -141,4 +140,37 @@ for l in range(1, 26):
             sort_clean_questions.append(q2int[i[0]])
             sort_clean_answers.append(a2int[i[0]])
 
+# Building seq2seq model
+'''
+create placeholders for TF, it's like a fancy array that is understand by tf,
+the tf.placeholder do something like creating the 'array'.
+'''
 
+
+def model_inputs():
+    inputs = tf.placeholder(tf.int32, [None, None], name='input')
+    targets = tf.placeholder(tf.int32, [None, None], name='target')
+    lr = tf.placeholder(tf.float32, name='learning_rate')
+    keep_prob = tf.placeholder(tf.float32, name='keep_prob ')
+    return inputs, targets, lr, keep_prob
+
+
+'''
+The goal it's to concatenate a <SOS> in the beginning of the sentence and
+remove the last token from the sentence(I don't understand why remove the last 
+token.
+'''
+
+
+def preprocess_targets(targets, word2int, batch_size):
+    left_size = tf.fill([batch_size, 1], word2int['<SOS>'])
+    right_size = tf.strided_slice(targets, [0, 0], [batch_size, -1], [1, 1])
+    preprocessed_targets = tf.concat([left_size, right_size], 1)
+    return preprocessed_targets
+
+
+'''
+'''
+
+
+def rnn_encoder():
